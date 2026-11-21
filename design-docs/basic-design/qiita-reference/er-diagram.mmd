@@ -1,0 +1,115 @@
+erDiagram
+    CATEGORY["商品カテゴリ"] {
+        bigint カテゴリID PK
+        string カテゴリ名
+    }
+    PRODUCT["商品"] {
+        bigint 商品ID PK
+        bigint カテゴリID FK
+        string 商品コード
+        string 商品名
+        string 商品区分
+    }
+    MEMBER["会員"] {
+        bigint 会員ID PK
+        string 会員コード
+        string 会員名
+        string メールアドレス
+    }
+    SUPPLIER["仕入れ先"] {
+        bigint 仕入れ先ID PK
+        string 仕入れ先コード
+        string 仕入れ先名
+    }
+    PURCHASE_ORDER["仕入れ"] {
+        bigint 仕入れID PK
+        bigint 仕入れ先ID FK
+        string 仕入れ番号
+        date 発注日
+        boolean 取消フラグ
+    }
+    PURCHASE_ORDER_DETAIL["仕入れ明細"] {
+        bigint 仕入れ明細ID PK
+        bigint 仕入れID FK
+        bigint 商品ID FK
+        int 発注数量
+        decimal 仕入単価
+    }
+    STOCK_IN["入庫"] {
+        bigint 入庫ID PK
+        bigint 仕入れID FK
+        date 入庫日
+    }
+    STOCK_IN_DETAIL["入庫明細"] {
+        bigint 入庫明細ID PK
+        bigint 入庫ID FK
+        bigint 仕入れ明細ID FK
+        bigint 商品ID FK
+        int 入庫数量
+    }
+    SALES_ORDER["受注"] {
+        bigint 受注ID PK
+        bigint 会員ID FK
+        string 受注番号
+        date 受注日
+        boolean 取消フラグ
+    }
+    SALES_ORDER_DETAIL["受注明細"] {
+        bigint 受注明細ID PK
+        bigint 受注ID FK
+        bigint 商品ID FK
+        int 受注数量
+        decimal 販売単価
+    }
+    SHIPMENT["出荷"] {
+        bigint 出荷ID PK
+        bigint 会員ID FK
+        string 出荷番号
+        string 配送先住所
+        date 出荷日
+    }
+    STOCK_OUT["出庫"] {
+        bigint 出庫ID PK
+        bigint 受注明細ID FK
+        bigint 出荷ID FK
+        bigint 商品ID FK
+        int 出庫数量
+    }
+    STOCK_TAKING["棚卸し"] {
+        bigint 棚卸しID PK
+        string 対象年月
+        date 棚卸し実施日
+        string ステータス
+    }
+    STOCK_TAKING_DETAIL["棚卸し明細"] {
+        bigint 棚卸し明細ID PK
+        bigint 棚卸しID FK
+        bigint 商品ID FK
+        int 実棚卸数量
+    }
+
+    CATEGORY ||--o{ PRODUCT : "分類する"
+    SUPPLIER ||--o{ PURCHASE_ORDER : "発注先となる"
+    PURCHASE_ORDER ||--o{ PURCHASE_ORDER_DETAIL : "内訳を持つ"
+    PRODUCT ||--o{ PURCHASE_ORDER_DETAIL : "発注対象となる"
+    PURCHASE_ORDER ||--o{ STOCK_IN : "入庫される"
+    STOCK_IN ||--o{ STOCK_IN_DETAIL : "内訳を持つ"
+    PURCHASE_ORDER_DETAIL ||--o{ STOCK_IN_DETAIL : "入庫実績を持つ"
+    PRODUCT ||--o{ STOCK_IN_DETAIL : "入庫対象となる"
+    MEMBER ||--o{ SALES_ORDER : "受注する"
+    MEMBER ||--o{ SHIPMENT : "配送先となる"
+    SALES_ORDER ||--o{ SALES_ORDER_DETAIL : "内訳を持つ"
+    PRODUCT ||--o{ SALES_ORDER_DETAIL : "受注対象となる"
+    SALES_ORDER_DETAIL ||--o{ STOCK_OUT : "分割して出庫されうる"
+    SHIPMENT ||--o{ STOCK_OUT : "まとめて出庫されうる"
+    PRODUCT ||--o{ STOCK_OUT : "出庫対象となる"
+    STOCK_TAKING ||--o{ STOCK_TAKING_DETAIL : "内訳を持つ"
+    PRODUCT ||--o{ STOCK_TAKING_DETAIL : "棚卸対象となる"
+
+    classDef master fill:#d3f9d8,stroke:#2f9e44,color:#1b1b1b
+    classDef state fill:#fff3bf,stroke:#f08c00,color:#1b1b1b
+    classDef transaction fill:#ffe3e3,stroke:#e03131,color:#1b1b1b
+
+    class CATEGORY,PRODUCT,SUPPLIER master
+    class MEMBER state
+    class PURCHASE_ORDER,PURCHASE_ORDER_DETAIL,STOCK_IN,STOCK_IN_DETAIL,SALES_ORDER,SALES_ORDER_DETAIL,SHIPMENT,STOCK_OUT,STOCK_TAKING,STOCK_TAKING_DETAIL transaction
